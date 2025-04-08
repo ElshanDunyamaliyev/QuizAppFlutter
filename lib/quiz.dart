@@ -1,6 +1,10 @@
+import 'package:first_app/models/quiz_question.dart';
+import 'package:first_app/models/quiz_result.dart';
 import 'package:first_app/question_screen.dart';
+import 'package:first_app/result.dart';
 import 'package:flutter/material.dart';
 import 'package:first_app/start_screen.dart';
+import 'package:first_app/data/questions.dart';
 
 class Quiz extends StatefulWidget {
   const Quiz({super.key});
@@ -10,17 +14,37 @@ class Quiz extends StatefulWidget {
 }
 
 class _QuizState extends State<Quiz> {
-  Widget? activeScreen;
+  List<String> answers = [];
+  var correctAnswers = 0;
+  List<QuizResult> quizResults = [];
+  var activeScreen = 'start-screen';
 
-  @override
-  void initState() {
-    super.initState();
-    activeScreen = StartScreen(changeScreen);
+  void checkIfCorrect(List<String> guessedAnswers) {
+    questions.asMap().forEach((i, q) {
+      if (q.answers[0] == guessedAnswers[i]) {
+        correctAnswers++;
+      }
+      quizResults.add(
+        QuizResult(questions[i].text, guessedAnswers[i], q.answers[0]),
+      );
+    });
+  }
+
+  void answerQuestion(String answer) {
+    answers.add(answer);
+
+    if (answers.length == questions.length) {
+      setState(() {
+        checkIfCorrect(answers);
+        answers = [];
+        activeScreen = 'result-screen';
+      });
+    }
   }
 
   void changeScreen() {
     setState(() {
-      activeScreen = const QuestionScreen();
+      activeScreen = 'question-screen';
     });
   }
 
@@ -39,7 +63,15 @@ class _QuizState extends State<Quiz> {
               end: Alignment.bottomRight,
             ),
           ),
-          child: activeScreen,
+          child:
+              activeScreen == 'start-screen'
+                  ? StartScreen(changeScreen)
+                  : activeScreen != 'result-screen'
+                  ? QuestionScreen(answerQuestion)
+                  : ResultScreen(
+                    "You answered $correctAnswers out of ${questions.length} correctly!",
+                    quizResults,
+                  ),
         ),
       ),
     );
