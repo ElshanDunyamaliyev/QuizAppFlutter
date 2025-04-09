@@ -48,6 +48,14 @@ class _QuizState extends State<Quiz> {
     });
   }
 
+  void goBackResultScreen() {
+    setState(() {
+      answers = [];
+      correctAnswers = 0;
+      activeScreen = 'start-screen';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -71,6 +79,7 @@ class _QuizState extends State<Quiz> {
                   : ResultScreen(
                     "You answered $correctAnswers out of ${questions.length} correctly!",
                     quizResults,
+                    goBackResultScreen,
                   ),
         ),
       ),
